@@ -111,6 +111,7 @@ src/memory-models/mm_y.tab.h
 # binaries
 src/cbmc/cbmc
 src/cbmc/cbmc.exe
+src/cbmc/deagle_exe
 src/cprover/cprover
 src/crangler/crangler
 src/goto-analyzer/goto-analyzer
