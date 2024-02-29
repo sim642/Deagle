@@ -74,6 +74,10 @@ jbmc/regression/**/tests-symex-driven-loading.log
 
 # libs downloaded by make [name]-download
 minisat*/
+# keep Deagle's minisat
+!minisat-2.2.1/
+!minisat-2.2.1/*
+!minisat-2.2.1/**/*
 glucose-syrup/
 
 # flex/bison generated files
