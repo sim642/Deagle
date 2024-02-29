@@ -274,7 +274,7 @@ void symex_bmct::svcomp_get_interesting_codes()
 
     if(symbol.value.id() != ID_code)
       continue;
-    
+
     std::vector<codet> codes;
     codes.push_back(to_code(symbol.value));
     while(!codes.empty())
@@ -286,7 +286,7 @@ void symex_bmct::svcomp_get_interesting_codes()
 
       if(function_name.find("sleep") != std::string::npos)
         has_sleep = true;
-      
+
       if(function_name.find("writer_fn") != std::string::npos)
         has_writer_fn = true;
 
@@ -307,7 +307,7 @@ void symex_bmct::svcomp_get_interesting_codes()
 
       if(function_name.find("external_alloc") != std::string::npos)
         has_external_alloc = true;
-      
+
       if(function_name.find("barrier_init") != std::string::npos)
         has_barrier_init = true;
 
@@ -322,7 +322,7 @@ void symex_bmct::svcomp_get_interesting_codes()
 
       if(function_name.find("Init_WorkStealQueue") != std::string::npos)
         has_Init_WorkStealQueue = true;
-      
+
       if(function_name.find("__VERIFIER_atomic_acquire") != std::string::npos)
         has_atomic_acquire = true;
 
@@ -331,16 +331,16 @@ void symex_bmct::svcomp_get_interesting_codes()
 
       if(function_name.find("__VERIFIER_atomic_CAS") != std::string::npos)
         has_atomic_trash = true;
-      
+
       if(function_name.find("__VERIFIER_atomic_index_malloc") != std::string::npos)
         has_atomic_trash = true;
-      
+
       if(function_name.find("myPartOfCalc") != std::string::npos)
         has_myPartOfCalc = true;
 
       if(function_name.find("nvram") != std::string::npos)
         has_nvram = true;
-      
+
       if(function_name.find("pc8736x") != std::string::npos)
         has_pc8736x = true;
 
@@ -409,7 +409,7 @@ void symex_bmct::svcomp_get_assume_upperbounds()
 
       if(expr.id() != ID_le && expr.id() != ID_lt && expr.id() != ID_ge && expr.id() != ID_gt)
         continue;
-      
+
       auto left = expr.op0();
       auto right = expr.op1();
       if((expr.id() == ID_le || expr.id() == ID_lt) && left.id() == ID_symbol && right.id() == ID_constant) // v < c
@@ -444,7 +444,7 @@ void symex_bmct::svcomp_get_assume_upperbounds()
 
       if(expr.id() != ID_le && expr.id() != ID_lt && expr.id() != ID_ge && expr.id() != ID_gt)
         continue;
-      
+
       auto left = expr.op0();
       auto right = expr.op1();
       if((expr.id() == ID_le || expr.id() == ID_lt) && left.id() == ID_symbol && right.id() == ID_constant) // v < c
@@ -533,9 +533,9 @@ int symex_bmct::svcomp_for_unwind_limit_single(code_fort& code)
   // __SZH_ADD_END__
 
   if (//init_left->id() == ID_symbol &&
-      cond_left->id() == ID_symbol && 
-      iter_left->id() == ID_symbol && 
-      //*init_left == *cond_left && 
+      cond_left->id() == ID_symbol &&
+      iter_left->id() == ID_symbol &&
+      //*init_left == *cond_left &&
       *cond_left == *iter_left &&
       //init_right->id() == ID_constant &&
       (cond_right->id() == ID_constant ||
@@ -759,7 +759,7 @@ int symex_bmct::svcomp_unwind_strategy()
     target.has_threads_total = has_threads_total;
     svcomp_exit(max_limit, loop_unwind_limit, has_mutex_array);
   }
-  
+
   if(enable_overflow)
     svcomp_overflow_exit();
 
@@ -820,13 +820,7 @@ void symex_bmct::svcomp_special(int& max_limit, int for_unwind_limit)
 
 void symex_bmct::svcomp_exit(int max_limit, int for_unwind_limit, bool has_mutex_array)
 {
-  if(has_sleep || has_key || has_barrier_init || has_my_drv_probe || has_Init_WorkStealQueue) // || has_malloc) // szh: exiting cases with malloc is too destructive
-  {
-    std::cout << "Unsupported library function!\n";
-    std::exit(1);
-  }
-
-  if(has_calloc && has_threads_total) //for pthread-race-challenges/thread-local-value-dynamic
+  if(has_sleep || has_key) // || has_malloc) // szh: exiting cases with malloc is too destructive
   {
     std::cout << "Unsupported library function!\n";
     std::exit(1);
@@ -838,45 +832,17 @@ void symex_bmct::svcomp_exit(int max_limit, int for_unwind_limit, bool has_mutex
     if(left.id() != ID_symbol)
       continue;
     std::string left_str = to_symbol_expr(left).get_identifier().c_str();
-
-    //for popl20-*
-    if(left_str.find("q1_front") != std::string::npos)
-    {
-      std::cout << "Unsupported library function!\n";
-      std::exit(1);
-    }
-
-    //for singleton_with-uninit-problem
-    if(left_str == "v" && left.type().id() == ID_pointer)
-    {
-      std::cout << "Unsupported library function!\n";
-      std::exit(1);
-    }
   }
 }
 
 void symex_bmct::svcomp_overflow_exit()
 {
-  if(has_myPartOfCalc)
-  {
-    std::cout << "Unsupported library function!\n";
-    std::exit(1);
-  }
 
-  if(has_nvram || has_pc8736x)
-  {
-    std::cout << "Unsupported library function!\n";
-    std::exit(1);
-  }
 }
 
 void symex_bmct::svcomp_memsafety_exit()
 {
-  if(has_nvram || has_pc8736x)
-  {
-    std::cout << "Unsupported library function!\n";
-    std::exit(1);
-  }
+
 }
 
 void symex_bmct::svcomp_datarace_exit()
@@ -887,27 +853,9 @@ void symex_bmct::svcomp_datarace_exit()
   //   std::exit(1);
   // }
 
-  if(has_barrier_init)
-  {
-    std::cout << "Unsupported library function!\n";
-    std::exit(1);
-  }
-
   if(has_atomic_trash)
   {
     std::cout << "Unsupported __VERIFIER_atomic_* function!\n";
-    std::exit(1);
-  }
-
-  if(has_writer_fn)
-  {
-    std::cout << "Unsupported library function!\n";
-    std::exit(1);
-  }
-
-  if(has_insert && !has_take)
-  {
-    std::cout << "Unsupported library function!\n";
     std::exit(1);
   }
 }
