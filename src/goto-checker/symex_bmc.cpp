@@ -720,13 +720,6 @@ int symex_bmct::svcomp_unwind_strategy()
   bool has_array = svcomp_has_array();
   bool has_mutex_array = svcomp_has_mutex_array();
 
-  //experimental, for 09-regions_20/23/26_*.i
-  if(candidate_limits.find(10) != candidate_limits.end() && candidate_limits.find(30) != candidate_limits.end())
-  {
-    std::cout << "too many nested unwind!\n";
-    std::exit(1);
-  }
-
   int max_limit = 2;
   if(has_array && loop_unwind_limit > 0 && loop_unwind_limit < 30)
   {
@@ -744,12 +737,6 @@ int symex_bmct::svcomp_unwind_strategy()
   {
     std::cout << "set limit type 3\n";
     max_limit = loop_unwind_limit + 1;
-  }
-
-  if(max_limit >= 9999 || loop_unwind_limit >= 9999) // szh: most goblint-regression/28_race-reach cases unwind 10000, we give up them
-  {
-    std::cout << "too many unwind!\n";
-    std::exit(1);
   }
 
   svcomp_special(max_limit, loop_unwind_limit);
@@ -783,32 +770,7 @@ void symex_bmct::svcomp_update_assume_upperbound(std::string& id, int value)
 
 void symex_bmct::svcomp_special(int& max_limit, int for_unwind_limit)
 {
-  // For 40_barrier_vf_false-unreach-call.i
-  for(auto& code_ifthenelse : ifthenelses)
-  {
-    const exprt& cond = code_ifthenelse.cond();
-    if (cond.id() == ID_equal && cond.op0().id() == ID_symbol && cond.op1().id() == ID_typecast && cond.op1().op0().id() == ID_constant)
-    {
-      std::string str = to_symbol_expr(cond.op0()).get_identifier().c_str();
-      if(str.find("count") != std::string::npos)
-      {
-        int limit = string2integer(cond.op1().op0().get_string(ID_value), 16).to_long();
-        max_limit = limit + 1;
-      }
-    }
-  }
 
-  // For pthread-driver-races
-  if(has_external_alloc)
-    max_limit = 100;
-
-  // For weaver/popl20-* cases
-  if(has_create_fresh_int_array && has_plus)
-    max_limit = 3;
-
-  // For newly added pthread-race-challenges/*
-  if(has_threads_total)
-    max_limit = 5;
 }
 
 void symex_bmct::svcomp_exit(int max_limit, int for_unwind_limit, bool has_mutex_array)
