@@ -108,25 +108,12 @@ public:
   bool svcomp_has_array();
   bool svcomp_has_mutex_array();
   bool has_sleep;
-  bool has_writer_fn;
-  bool has_insert;
-  bool has_take;
   bool has_malloc;
   bool has_calloc;
   bool has_key;
-  bool has_external_alloc;
-  bool has_barrier_init;
-  bool has_my_drv_probe;
-  bool has_create_fresh_int_array;
-  bool has_plus;
-  bool has_Init_WorkStealQueue;
   bool has_atomic_acquire;
   bool has_atomic_dec;
   bool has_atomic_trash;
-  bool has_myPartOfCalc;
-  bool has_threads_total;
-  bool has_nvram;
-  bool has_pc8736x;
   int svcomp_unwind_strategy();
 
   void svcomp_special(int& max_limit, int for_unwind_limit);

@@ -41,25 +41,12 @@ symex_bmct::symex_bmct(
     unwindset(unwindset),
     // __SZH_ADD_BEGIN__
     has_sleep(false),
-    has_writer_fn(false),
-    has_insert(false),
-    has_take(false),
     has_malloc(false),
     has_calloc(false),
     has_key(false),
-    has_external_alloc(false),
-    has_barrier_init(false),
-    has_my_drv_probe(false),
-    has_create_fresh_int_array(false),
-    has_plus(false),
-    has_Init_WorkStealQueue(false),
     has_atomic_acquire(false),
     has_atomic_dec(false),
     has_atomic_trash(false),
-    has_myPartOfCalc(false),
-    has_threads_total(false),
-    has_nvram(false),
-    has_pc8736x(false),
     // __SZH_ADD_END__
     symex_coverage(ns)
 {
@@ -287,15 +274,6 @@ void symex_bmct::svcomp_get_interesting_codes()
       if(function_name.find("sleep") != std::string::npos)
         has_sleep = true;
 
-      if(function_name.find("writer_fn") != std::string::npos)
-        has_writer_fn = true;
-
-      if(function_name == "insert")
-        has_insert = true;
-
-      if(function_name.find("take") != std::string::npos)
-        has_take = true;
-
       if(function_name.find("malloc") != std::string::npos)
         has_malloc = true;
 
@@ -304,24 +282,6 @@ void symex_bmct::svcomp_get_interesting_codes()
 
       if(function_name.find("pthread_key_create") != std::string::npos || function_name.find("pthread_setspecific") != std::string::npos || function_name.find("pthread_getspecific") != std::string::npos)
         has_key = true;
-
-      if(function_name.find("external_alloc") != std::string::npos)
-        has_external_alloc = true;
-
-      if(function_name.find("barrier_init") != std::string::npos)
-        has_barrier_init = true;
-
-      if(function_name.find("my_drv_probe") != std::string::npos)
-        has_my_drv_probe = true;
-
-      if(function_name.find("create_fresh_int_array") != std::string::npos)
-        has_create_fresh_int_array = true;
-
-      if(function_name.find("plus") != std::string::npos)
-        has_plus = true;
-
-      if(function_name.find("Init_WorkStealQueue") != std::string::npos)
-        has_Init_WorkStealQueue = true;
 
       if(function_name.find("__VERIFIER_atomic_acquire") != std::string::npos)
         has_atomic_acquire = true;
@@ -334,15 +294,6 @@ void symex_bmct::svcomp_get_interesting_codes()
 
       if(function_name.find("__VERIFIER_atomic_index_malloc") != std::string::npos)
         has_atomic_trash = true;
-
-      if(function_name.find("myPartOfCalc") != std::string::npos)
-        has_myPartOfCalc = true;
-
-      if(function_name.find("nvram") != std::string::npos)
-        has_nvram = true;
-
-      if(function_name.find("pc8736x") != std::string::npos)
-        has_pc8736x = true;
 
       if(code.get_statement() == ID_block)
       {
@@ -369,25 +320,7 @@ void symex_bmct::svcomp_get_interesting_codes()
         function_calls.push_back(to_code_function_call(code));
       else if(code.get_statement() == ID_ifthenelse)
         ifthenelses.push_back(to_code_ifthenelse(code));
-      else if(code.get_statement() == ID_decl)
-      {
-        if(code.op0().id() == ID_symbol)
-        {
-          std::string decl_str = to_symbol_expr(code.op0()).get_identifier().c_str();
-          if(decl_str.find("threads_total") != std::string::npos)
-            has_threads_total = true;
-        }
-      }
     }
-  }
-
-  for(auto& assign_code : assigns)
-  {
-    if(assign_code.lhs().id() != ID_symbol)
-      continue;
-    std::string lhs_str = to_symbol_expr(assign_code.lhs()).get_identifier().c_str();
-    if(lhs_str.find("threads_total") != std::string::npos)
-      has_threads_total = true;
   }
 }
 
@@ -743,7 +676,6 @@ int symex_bmct::svcomp_unwind_strategy()
 
   if(enable_reach)
   {
-    target.has_threads_total = has_threads_total;
     svcomp_exit(max_limit, loop_unwind_limit, has_mutex_array);
   }
 
