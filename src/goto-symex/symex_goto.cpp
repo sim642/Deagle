@@ -948,7 +948,7 @@ void goto_symext::loop_bound_exceeded(
   }
 
   // __SZH_ADD_BEGIN__ : for pthread-race-challenges/thread-local.value.c
-  bool real_partial_loops = symex_config.partial_loops || target.has_threads_total;
+  bool real_partial_loops = symex_config.partial_loops;
   // __SZH_ADD_END__
   if(!real_partial_loops)
   {

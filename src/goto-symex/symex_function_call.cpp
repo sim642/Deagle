@@ -249,7 +249,7 @@ void goto_symext::symex_function_call_post_clean(
       vcc(false_exprt(), "recursion unwinding assertion", state);
 
     // __SZH_ADD_BEGIN__
-    bool real_partial_loops = symex_config.partial_loops || target.has_threads_total;
+    bool real_partial_loops = symex_config.partial_loops;
     // __SZH_ADD_END__
     if(!real_partial_loops)
     {
