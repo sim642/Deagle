@@ -806,13 +806,6 @@ void symex_bmct::svcomp_special(int& max_limit, int for_unwind_limit)
   if(has_create_fresh_int_array && has_plus)
     max_limit = 3;
 
-  // For pthread/indexer.i
-  if(max_limit == 2 && for_unwind_limit == 128)
-  {
-    std::cout << "Unsupported function!\n";
-    std::exit(1);
-  }
-
   // For newly added pthread-race-challenges/*
   if(has_threads_total)
     max_limit = 5;
